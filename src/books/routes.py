@@ -6,6 +6,9 @@ from .schemas import Book, UpdateBookModel,BookCreateModel
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from src.db.main import get_session
 from .service import BookService
+
+from src.auth.dependencies import HTTPBearerToken
+access_token_bearer=HTTPBearerToken()
 book_router = APIRouter()
 
 book_service=BookService()
@@ -18,7 +21,7 @@ async def create_book(book_data:BookCreateModel ,session:AsyncSession=Depends(ge
 
 # response model is use for masking the data and converted into required schema.
 @book_router.get("/", response_model=List[Book])
-async def get_all_books(session:AsyncSession=Depends(get_session)):
+async def get_all_books(session:AsyncSession=Depends(get_session),user_details=Depends(access_token_bearer)):
     books=await book_service.get_all_books(session)
     return books
 
